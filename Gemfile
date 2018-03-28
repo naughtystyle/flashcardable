@@ -7,6 +7,7 @@ gem "rack-cors"
 
 group :development, :test do
   gem "byebug", platforms: :mri
+  gem "rspec-rails", "~> 3.7"
 end
 
 group :development do
