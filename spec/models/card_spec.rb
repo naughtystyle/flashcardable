@@ -1,11 +1,12 @@
 require "rails_helper"
 
 RSpec.describe Card do
+  it { should belong_to(:deck) }
+  it { should have_many(:attempts) }
+
   it { should validate_presence_of(:title) }
   it { should validate_presence_of(:question) }
   it { should validate_presence_of(:answer) }
-
-  it { should belong_to(:deck) }
 
   describe "#next" do
     context "when there are more cards" do
@@ -28,6 +29,16 @@ RSpec.describe Card do
 
         expect(card.next).to be_nil
       end
+    end
+  end
+
+  describe "#attempts" do
+    it "orders by created_at most recent first" do
+      card = create(:card)
+      older_attempt = create(:attempt, card: card)
+      newer_attempt = create(:attempt, card: card)
+
+      expect(card.attempts).to eq([newer_attempt, older_attempt])
     end
   end
 end

@@ -1,9 +1,9 @@
 require "rails_helper"
 
 RSpec.describe Deck do
-  it { should validate_presence_of(:title) }
-
   it { should have_many(:cards).dependent(:destroy) }
+
+  it { should validate_presence_of(:title) }
 
   describe ".published" do
     it "returns the list of published decks" do

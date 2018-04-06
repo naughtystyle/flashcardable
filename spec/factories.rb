@@ -13,4 +13,9 @@ FactoryBot.define do
     answer "A"
     deck
   end
+
+  factory :attempt do
+    card
+    correct true
+  end
 end
