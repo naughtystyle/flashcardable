@@ -7,6 +7,7 @@ defaults: &defaults
         PGHOST: 127.0.0.1
         PGUSER: dan
         RAILS_ENV: test
+        COVERAGE: true
     - image: circleci/postgres:9.5-alpine
       environment:
         POSTGRES_USER: dan
@@ -15,6 +16,7 @@ defaults: &defaults
 jobs:
   build:
     <<: *defaults
+
     steps:
       - run:
           name:  Download cc-test-reporter
@@ -27,51 +29,25 @@ jobs:
           paths:
             - cc-test-reporter
   backend:
+    <<: *defaults
+    steps:
       - checkout
       - attach_workspace:
           at: ~/repo/tmp
-
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "Gemfile.lock" }}
-          - v1-dependencies-
-
       - run:
-          name: install dependencies
+          name: Setup dependencies
           command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-      - save_cache:
-          paths:
-            - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-      - run: bundle exec rake db:create
-      - run: bundle exec rake db:schema:load
-
+            bundle install --without production --path=${BUNDLE_PATH:-vendor/bundle}
+            bundle exec rake db:create db:migrate
       - run:
-          name: run tests
+          name: Run backend tests
           command: |
             bundle exec rake
             ./tmp/cc-test-reporter format-coverage -t simplecov -o tmp/codeclimate.backend.json coverage/backend/.resultset.json
-          command: |
-            mkdir /tmp/test-results
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
-
-            bundle exec rspec --format progress \
-                            --out /tmp/test-results/rspec.xml \
-                            --format progress \
-                            $TEST_FILES
       - persist_to_workspace:
-        root: tmp
-        paths:
-          - codeclimate.backend.json
-
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+          root: tmp
+          paths:
+            - codeclimate.backend.json
   coverage:
     <<: *defaults
     environment:
@@ -82,7 +58,7 @@ jobs:
       - run:
           name: Upload coverage results to Code Climate
           command: |
-            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json -p 2 -o tmp/codeclimate.total.json
+            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json -p 1 -o tmp/codeclimate.total.json
             ./tmp/cc-test-reporter upload-coverage -i tmp/codeclimate.total.json
 workflows:
   version: 2
