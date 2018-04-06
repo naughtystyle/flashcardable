@@ -1,5 +1,5 @@
 class Card < ApplicationRecord
-  belongs_to :deck
+  belongs_to :deck, counter_cache: true
   has_many :attempts, -> { order(created_at: :desc) }
 
   validates :title, :question, :answer, presence: true

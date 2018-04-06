@@ -24,4 +24,14 @@ RSpec.describe Deck do
       expect(deck.cards).to match([newer_card, older_card])
     end
   end
+
+  describe "#size" do
+    it "returns the number of flashcards the deck has" do
+      deck = create(:deck)
+      create(:card, deck: deck)
+      create(:card, deck: deck)
+
+      expect(deck.size).to eq(2)
+    end
+  end
 end

@@ -6,4 +6,8 @@ class Deck < ApplicationRecord
   def self.published
     where(published: true)
   end
+
+  def size
+    cards_count
+  end
 end
