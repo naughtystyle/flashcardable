@@ -1,15 +1,7 @@
-class Deck
-  attr_reader :title
+class Deck < ApplicationRecord
+  validates :title, presence: true
 
-  def initialize(title = "")
-    @title = title
-  end
-
-  def cards
-    @cards ||= []
-  end
-
-  def cards_count
-    cards.size
+  def self.published
+    where(published: true)
   end
 end
