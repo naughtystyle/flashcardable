@@ -1,0 +1,98 @@
+version: 2
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/ruby:2.4.2-jessie-node-browsers
+      environment:
+        PGHOST: 127.0.0.1
+        PGUSER: dan
+        RAILS_ENV: test
+    - image: circleci/postgres:9.5-alpine
+      environment:
+        POSTGRES_USER: dan
+        POSTGRES_DB: flashcardable_test
+        POSTGRES_PASSWORD: ""
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - run:
+          name:  Download cc-test-reporter
+          command: |
+            mkdir -p tmp/
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
+            chmod +x ./tmp/cc-test-reporter
+      - persist_to_workspace:
+          root: tmp
+          paths:
+            - cc-test-reporter
+  backend:
+      - checkout
+      - attach_workspace:
+          at: ~/repo/tmp
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "Gemfile.lock" }}
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+
+      - run: bundle exec rake db:create
+      - run: bundle exec rake db:schema:load
+
+      - run:
+          name: run tests
+          command: |
+            bundle exec rake
+            ./tmp/cc-test-reporter format-coverage -t simplecov -o tmp/codeclimate.backend.json coverage/backend/.resultset.json
+          command: |
+            mkdir /tmp/test-results
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
+
+            bundle exec rspec --format progress \
+                            --out /tmp/test-results/rspec.xml \
+                            --format progress \
+                            $TEST_FILES
+      - persist_to_workspace:
+        root: tmp
+        paths:
+          - codeclimate.backend.json
+
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
+  coverage:
+    <<: *defaults
+    environment:
+      - CC_TEST_REPORTER_ID: 4b66eee8b3d10592595e9281963464a0f5daf177b0ee60aaacb9e865efb2cc79
+    steps:
+      - attach_workspace:
+          at: ~/repo/tmp
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json -p 2 -o tmp/codeclimate.total.json
+            ./tmp/cc-test-reporter upload-coverage -i tmp/codeclimate.total.json
+workflows:
+  version: 2
+
+  commit:
+    jobs:
+      - build
+      - backend:
+          requires:
+            - build
+      - coverage:
+          requires:
+             - backend
