@@ -90,3 +90,29 @@ jobs:
             ./cc-test-reporter before-build
             sudo vendor/bin/phpunit --coverage-clover clover.xml
             ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?# Ruby CircleCI 2.0 configuration file
+
+  upload-coverage:
+    docker:
+      - image: circleci/ruby:2.4.1-node-browsers
+        environment:
+          PGHOST: 127.0.0.1
+          PGUSER: dan
+          RAILS_ENV: test
+
+      - image: circleci/postgres:9.4
+        environment:
+          POSTGRES_USER: dan
+          POSTGRES_DB: flashcardable_test
+          POSTGRES_PASSWORD: ""
+
+    working_directory: ~/repo
+    environment:
+      - CC_TEST_REPORTER_ID: 4b66eee8b3d10592595e9281963464a0f5daf177b0ee60aaacb9e865efb2cc79
+    steps:
+      - attach_workspace:
+          at: ~/repo/tmp
+      - run:
+          name: Upload coverage results to Code Climate
+          command: |
+            ./tmp/cc-test-reporter sum-coverage tmp/codeclimate.*.json -p 2 -o tmp/codeclimate.total.json
+            ./tmp/cc-test-reporter upload-coverage -i tmp/codeclimate.total.json
