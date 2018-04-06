@@ -6,4 +6,11 @@ FactoryBot.define do
   factory :deck do
     title
   end
+
+  factory :card do
+    title
+    question "Q"
+    answer "A"
+    deck
+  end
 end

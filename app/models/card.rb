@@ -1,9 +1,7 @@
-class Card
-  attr_reader :question, :answer
-  attr_accessor :position, :title
+class Card < ApplicationRecord
+  belongs_to :deck
 
-  def initialize(question, answer)
-    @question = question
-    @answer = answer
-  end
+  validates :title, :question, :answer, presence: true
+
+  acts_as_list scope: :deck
 end

@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "acts_as_list", "~> 0.9.11"
 gem "pg", ">= 0.18", "< 2.0"
 gem "puma", "~> 3.7"
 gem "rack-cors", "~> 1.0.2"

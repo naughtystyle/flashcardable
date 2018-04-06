@@ -10,11 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180330145622) do
+ActiveRecord::Schema.define(version: 20180330151013) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "cards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "question", null: false
+    t.text "answer", null: false
+    t.integer "position", null: false
+    t.string "title", default: "", null: false
+    t.uuid "deck_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deck_id"], name: "index_cards_on_deck_id"
+  end
 
   create_table "decks", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "title", null: false
@@ -23,4 +34,5 @@ ActiveRecord::Schema.define(version: 20180330145622) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "cards", "decks", on_delete: :cascade
 end
