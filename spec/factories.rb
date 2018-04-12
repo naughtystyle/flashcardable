@@ -12,6 +12,11 @@ FactoryBot.define do
     question "Q"
     answer "A"
     deck
+
+    trait :invalid do
+      question nil
+      answer nil
+    end
   end
 
   factory :attempt do
