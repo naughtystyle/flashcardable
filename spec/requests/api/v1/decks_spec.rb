@@ -17,6 +17,9 @@ RSpec.describe "GET /api/v1/decks" do
       "attributes" => {
         "title" => deck.title,
         "published" => deck.published,
+      },
+      "relationships" => {
+        "cards" => { "data" => [] }
       }
     })
   end
@@ -35,6 +38,9 @@ RSpec.describe "GET /api/v1/decks/:id" do
      "attributes" => {
        "title" => deck.title,
        "published" => deck.published,
+     },
+     "relationships" => {
+       "cards" => { "data" => [] }
      }
    })
   end
