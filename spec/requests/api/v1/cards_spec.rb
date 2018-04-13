@@ -22,6 +22,14 @@ RSpec.describe "GET /api/v1/decks/:deck_id/cards" do
         "question" => card.question,
         "answer" => card.answer,
         "position" => card.position,
+      },
+      "relationships" => {
+        "deck" => {
+          "data" => {
+            "id" => deck.id,
+            "type"=>"deck"
+          }
+        }
       }
     })
   end
@@ -45,6 +53,14 @@ RSpec.describe "GET /api/v1/decks/:deck_id/cards/:id" do
         "question" => card.question,
         "answer" => card.answer,
         "position" => card.position,
+      },
+      "relationships" => {
+        "deck" => {
+          "data" => {
+            "id" => deck.id,
+            "type"=>"deck"
+          }
+        }
       }
     })
   end
