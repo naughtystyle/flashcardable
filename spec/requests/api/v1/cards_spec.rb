@@ -42,7 +42,7 @@ RSpec.describe "GET /api/v1/decks/:deck_id/cards/:id" do
 
     get "/api/v1/decks/#{deck.id}/cards/#{card.id}"
 
-    expect(response).to be_success
+    expect(response.status).to eq(200)
 
     card_json = json_body["data"]
     expect(card_json).to eq({
