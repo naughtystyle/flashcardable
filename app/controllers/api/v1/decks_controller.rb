@@ -6,7 +6,7 @@ module Api
       end
 
       def show
-        render json: serializer(deck)
+        render json: serializer(deck, is_collection: false)
       end
 
       private
@@ -19,8 +19,8 @@ module Api
         Deck.published
       end
 
-      def serializer(serializable)
-        DeckSerializer.new(serializable).serialized_json
+      def serializer(serializable, **options)
+        DeckSerializer.new(serializable, options).serialized_json
       end
     end
   end
