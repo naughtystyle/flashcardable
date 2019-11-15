@@ -5,7 +5,7 @@ gem "bootsnap", ">= 1.4.2", require: false
 gem "fast_jsonapi", "1.5"
 gem "pg", ">= 0.18", "< 2.0"
 gem "puma", "~> 4.1.0"
-gem "rack-cors", "~> 1.0.3"
+gem "rack-cors", "~> 1.0.5"
 gem "rails", "~> 6.0.0"
 
 group :development, :test do
